@@ -16,13 +16,16 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlin.math.round
 import kotlin.random.Random
@@ -60,7 +63,7 @@ class MainActivity: ComponentActivity() {
                     ){
                         Text(
                             text = "Sales",
-                            style = MaterialTheme.typography.titleSmall
+                            style = MaterialTheme.typography.titleLarge
                         )
                         RandomItemPriceList(
                             modifier = Modifier.padding(16.dp),
@@ -77,15 +80,48 @@ private fun RandomItemPriceList(
     modifier: Modifier = Modifier,
     randomItems: List<String>
 ){
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ){
-        items(randomItems){
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(text = it)
-                Spacer(modifier = Modifier.weight(1f))
-                Text(text = "Php ${getRandomPrice()}")
+
+    val prices = remember { randomItems.map { getRandomPrice(1.0, 200.0) } }
+
+    val totalPrice = round(prices.sum() * 100) / 100
+    Column {
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ){
+            itemsIndexed(randomItems) {index, item ->
+                val price = prices[index]
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = item,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = "Php $price",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+
+            item{
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    HorizontalDivider()
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "Total",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = "Php $totalPrice",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
             }
         }
     }
