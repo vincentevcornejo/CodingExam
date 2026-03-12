@@ -1,11 +1,13 @@
 package com.challenge.codingexam
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -25,12 +28,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlin.math.round
 import kotlin.random.Random
 
-class MainActivity: ComponentActivity() {
+class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,21 +57,32 @@ class MainActivity: ComponentActivity() {
             MaterialTheme {
                 Scaffold(
                     contentWindowInsets = WindowInsets(0, 0, 0, 0),
+                    bottomBar = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .navigationBarsPadding(),
+                            contentAlignment = Alignment.Center){
+                            OpenAnotherAppButton()
+                        }
+                    }
                 ) { innerPadding ->
-                    Column(modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                        .statusBarsPadding()
-                        .navigationBarsPadding(),
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                            .statusBarsPadding()
+                            .navigationBarsPadding(),
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ){
+                    ) {
                         Text(
                             text = "Sales",
                             style = MaterialTheme.typography.titleLarge
                         )
                         RandomItemPriceList(
                             modifier = Modifier.padding(16.dp),
-                            randomItems = randomItems)
+                            randomItems = randomItems
+                        )
                     }
                 }
             }
@@ -79,7 +94,7 @@ class MainActivity: ComponentActivity() {
 private fun RandomItemPriceList(
     modifier: Modifier = Modifier,
     randomItems: List<String>
-){
+) {
 
     val prices = remember { randomItems.map { getRandomPrice(1.0, 200.0) } }
 
@@ -88,8 +103,8 @@ private fun RandomItemPriceList(
         LazyColumn(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-        ){
-            itemsIndexed(randomItems) {index, item ->
+        ) {
+            itemsIndexed(randomItems) { index, item ->
                 val price = prices[index]
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Text(
@@ -104,7 +119,7 @@ private fun RandomItemPriceList(
                 }
             }
 
-            item{
+            item {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     HorizontalDivider()
                     Row(modifier = Modifier.fillMaxWidth()) {
@@ -130,4 +145,22 @@ private fun RandomItemPriceList(
 fun getRandomPrice(min: Double = 1.0, max: Double = 200.0): Double {
     val randomValue = Random.nextDouble(min, max)
     return round(randomValue * 100) / 100
+}
+
+@Composable
+fun OpenAnotherAppButton() {
+    val context = LocalContext.current
+    Button(
+        onClick = {
+            val packageName = "com.lifehax.ai.cvhaxai"
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+            if (launchIntent != null) {
+                context.startActivity(launchIntent)
+            } else {
+                println("Other app not installed")
+            }
+        }
+    ) {
+        Text("Open Another App")
+    }
 }
